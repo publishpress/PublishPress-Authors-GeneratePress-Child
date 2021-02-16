@@ -9,7 +9,9 @@ function generatepress_child_enqueue_scripts() {
 add_filter( 'get_the_archive_title', 'genereratepress_child_the_archive_title', 20 );
 function genereratepress_child_the_archive_title( $title ) {
 	if ( is_author() ) {
+		the_post();
 		$author = get_multiple_authors( 0, true, true );
+		rewind_posts();
 
 		if ( empty( $author ) ) {
 			return $title;
@@ -25,4 +27,26 @@ function genereratepress_child_the_archive_title( $title ) {
 	}
 
 	return $title;
+}
+
+add_action( 'generate_after_archive_title', 'generatepress_child_do_archive_description' );
+function generatepress_child_do_archive_description() {
+	if ( ! is_author() ) {
+		return;
+	}
+
+	the_post();
+	$author = get_multiple_authors( 0, true, true );
+	rewind_posts();
+
+	if ( ! empty( $author->description ) ) {
+		echo '<div class="author-info">' . $author->description . '</div>';  // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+	}
+
+	/**
+	 * generate_after_archive_description hook.
+	 *
+	 * @since 0.1
+	 */
+	do_action( 'generate_after_archive_description' );
 }
